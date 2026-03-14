@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     max_retries: int = 3
     retry_backoff_seconds: int = 60
     
+    # Telegram Bot settings
+    telegram_bot_token: str = ""
+    telegram_chat_id: str = ""
+    telegram_parse_mode: str = "HTML"
+    
     model_config = {
         "env_file": ".env",
         "env_file_encoding": "utf-8",
