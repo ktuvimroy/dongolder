@@ -9,7 +9,7 @@ Build a fusion-based XAU/USD trading signal bot from the ground up. Start with r
 - [x] **Phase 1: Data Foundation** — Free XAU/USD price feed and data pipeline ✓
 - [x] **Phase 2: Technical Analysis Engine** — Core indicators and basic signals ✓
 - [x] **Phase 3: Telegram Signal Bot** — Alert delivery system (MVP complete) ✓
-- [ ] **Phase 4: Fusion Engine** — Multi-source signal combining and confidence scoring
+- [x] **Phase 4: Fusion Engine** — Multi-source signal combining and confidence scoring ✓
 - [ ] **Phase 5: Advanced Analysis** — News sentiment and ML pattern recognition
 - [ ] **Phase 6: Deployment & Tracking** — Free hosting and performance monitoring
 
@@ -73,8 +73,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Multi-indicator fusion logic with weighted scoring
-- [ ] 04-02-PLAN.md — Confidence scoring system and signal filtering
+- [x] 04-01-PLAN.md — Multi-indicator fusion logic with weighted scoring
+- [x] 04-02-PLAN.md — Confidence scoring system and signal filtering
 
 ### Phase 5: Advanced Analysis
 
