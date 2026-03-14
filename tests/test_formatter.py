@@ -28,6 +28,7 @@ def create_test_signal(
     reasoning: list[str] | None = None,
     support: PriceLevel | None = None,
     resistance: PriceLevel | None = None,
+    confidence: float = 0.75,
 ) -> RawSignal:
     """Create a test signal with default values."""
     if reasoning is None:
@@ -53,6 +54,7 @@ def create_test_signal(
         indicators=snapshot,
         nearby_support=support,
         nearby_resistance=resistance,
+        confidence=confidence,
     )
 
 
@@ -199,6 +201,53 @@ class TestFormatSignal:
         
         assert "2026-03-14" in result
         assert "12:00" in result
+    
+    def test_confidence_display_medium_tier(self) -> None:
+        """Confidence should be displayed with percentage and tier."""
+        signal = create_test_signal(confidence=0.75)
+        result = format_signal(signal)
+        
+        assert "75%" in result
+        assert "MEDIUM" in result
+        assert "Confidence" in result
+        # Confidence bar should appear (75% = 7 filled, 3 empty)
+        assert "███████░░░" in result
+    
+    def test_confidence_display_high_tier(self) -> None:
+        """High confidence (>=80%) should show HIGH tier."""
+        signal = create_test_signal(confidence=0.85)
+        result = format_signal(signal)
+        
+        assert "85%" in result
+        assert "HIGH" in result
+        # Confidence bar should appear (85% = 8 filled, 2 empty)
+        assert "████████░░" in result
+    
+    def test_confidence_display_low_tier(self) -> None:
+        """Low confidence (<60%) should show LOW tier."""
+        signal = create_test_signal(confidence=0.45)
+        result = format_signal(signal)
+        
+        assert "45%" in result
+        assert "LOW" in result
+        # Confidence bar should appear (45% = 4 filled, 6 empty)
+        assert "████░░░░░░" in result
+    
+    def test_confidence_bar_full(self) -> None:
+        """100% confidence should show full bar."""
+        signal = create_test_signal(confidence=1.0)
+        result = format_signal(signal)
+        
+        assert "100%" in result
+        assert "██████████" in result
+    
+    def test_confidence_bar_empty(self) -> None:
+        """0% confidence should show empty bar."""
+        signal = create_test_signal(confidence=0.0)
+        result = format_signal(signal)
+        
+        assert "0%" in result
+        assert "░░░░░░░░░░" in result
 
 
 class TestSignalFormatter:

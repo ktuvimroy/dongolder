@@ -16,6 +16,14 @@ EMOJI_TARGET = "🎯"
 EMOJI_CHART = "📊"
 EMOJI_REASON = "💡"
 EMOJI_RISK = "⚖️"
+EMOJI_CONFIDENCE = "📈"
+
+
+def _confidence_bar(confidence: float) -> str:
+    """Generate visual confidence bar using block characters."""
+    filled = int(confidence * 10)
+    empty = 10 - filled
+    return "█" * filled + "░" * empty
 
 
 def format_signal(signal: RawSignal, html: bool = True) -> str:
@@ -57,6 +65,13 @@ def _format_html(signal: RawSignal, emoji: str, direction: str) -> str:
     lines.append("")
     rr = signal.risk_reward_ratio
     lines.append(f"{EMOJI_RISK} <b>Risk/Reward:</b> 1:{rr:.2f}")
+    
+    # Confidence section
+    conf_pct = signal.confidence_percent
+    conf_tier = signal.confidence_tier
+    conf_bar = _confidence_bar(signal.confidence)
+    lines.append(f"{EMOJI_CONFIDENCE} <b>Confidence:</b> {conf_pct}% ({conf_tier})")
+    lines.append(f"    {conf_bar}")
     
     # Reasoning section
     if signal.reasoning:
@@ -104,6 +119,13 @@ def _format_plain(signal: RawSignal, emoji: str, direction: str) -> str:
     lines.append("")
     rr = signal.risk_reward_ratio
     lines.append(f"{EMOJI_RISK} Risk/Reward: 1:{rr:.2f}")
+    
+    # Confidence section
+    conf_pct = signal.confidence_percent
+    conf_tier = signal.confidence_tier
+    conf_bar = _confidence_bar(signal.confidence)
+    lines.append(f"{EMOJI_CONFIDENCE} Confidence: {conf_pct}% ({conf_tier})")
+    lines.append(f"    {conf_bar}")
     
     # Reasoning section
     if signal.reasoning:
