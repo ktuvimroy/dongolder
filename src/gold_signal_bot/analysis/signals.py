@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from ..data.models import OHLC, Timeframe
 from ..data.repository import OHLCRepository
 from .analyzer import TechnicalAnalyzer
+from .fusion import FusionEngine
 from .models import (
     PriceLevel,
     RawSignal,
@@ -40,8 +41,9 @@ class SignalGenerator:
     TP1_MULTIPLIER = 0.01  # 1% from entry
     TP2_MULTIPLIER = 0.02  # 2% from entry
     
-    # Minimum bullish/bearish count to generate signal
-    MIN_SIGNAL_COUNT = 2
+    # Confidence thresholds for signal generation
+    MIN_CONFIDENCE = 0.50  # 50% minimum to generate signal
+    CONFLICT_PENALTY = 0.05  # 5% penalty per conflicting indicator
     
     def __init__(self, ohlc_repo: OHLCRepository) -> None:
         """Initialize signal generator.
@@ -52,6 +54,7 @@ class SignalGenerator:
         self.ohlc_repo = ohlc_repo
         self.analyzer = TechnicalAnalyzer(ohlc_repo)
         self.sr_detector = SupportResistanceDetector(ohlc_repo)
+        self.fusion_engine = FusionEngine()
     
     def generate_signal(
         self,
@@ -59,8 +62,8 @@ class SignalGenerator:
     ) -> RawSignal | None:
         """Generate a trading signal for the given timeframe.
         
-        Analyzes technical indicators and support/resistance levels.
-        Returns a signal only if indicators align (MIN_SIGNAL_COUNT+).
+        Uses FusionEngine for weighted indicator scoring and filters
+        signals below MIN_CONFIDENCE threshold.
         
         Args:
             timeframe: Timeframe to analyze.
@@ -83,17 +86,37 @@ class SignalGenerator:
         support = self.sr_detector.nearest_support(current_price, levels)
         resistance = self.sr_detector.nearest_resistance(current_price, levels)
         
-        # Determine signal direction
-        bullish_count = snapshot.bullish_count()
-        bearish_count = snapshot.bearish_count()
+        # Use FusionEngine for weighted scoring
+        fusion = self.fusion_engine.fuse(snapshot, current_price, support, resistance)
         
-        if bullish_count >= self.MIN_SIGNAL_COUNT and bullish_count > bearish_count:
+        # NEUTRAL direction = no signal
+        if fusion.direction == SignalDirection.NEUTRAL:
+            return None
+        
+        # Calculate confidence from fusion score
+        if fusion.direction == SignalDirection.BULLISH:
+            base_confidence = fusion.bullish_score
+        else:
+            base_confidence = fusion.bearish_score
+        
+        # Apply conflict penalty
+        conflict_penalty = len(fusion.conflicting_indicators) * self.CONFLICT_PENALTY
+        confidence = max(0.0, min(1.0, base_confidence - conflict_penalty))
+        
+        # Filter by minimum confidence
+        if confidence < self.MIN_CONFIDENCE:
+            return None
+        
+        # Generate signal based on direction
+        if fusion.direction == SignalDirection.BULLISH:
             return self._create_buy_signal(
-                snapshot, current_price, support, resistance, timeframe
+                snapshot, current_price, support, resistance, timeframe,
+                confidence, fusion.aligned_indicators
             )
-        elif bearish_count >= self.MIN_SIGNAL_COUNT and bearish_count > bullish_count:
+        else:
             return self._create_sell_signal(
-                snapshot, current_price, support, resistance, timeframe
+                snapshot, current_price, support, resistance, timeframe,
+                confidence, fusion.aligned_indicators
             )
         
         return None
@@ -105,9 +128,13 @@ class SignalGenerator:
         support: PriceLevel | None,
         resistance: PriceLevel | None,
         timeframe: Timeframe,
+        confidence: float,
+        aligned_indicators: list[str],
     ) -> RawSignal:
         """Create a BUY signal with entry/SL/TP."""
-        reasoning = self._build_reasoning(snapshot, "BUY", support, resistance, price)
+        reasoning = self._build_reasoning(
+            snapshot, "BUY", support, resistance, price, confidence, aligned_indicators
+        )
         
         # Calculate levels
         # SL below support if available, otherwise use multiplier
@@ -136,6 +163,7 @@ class SignalGenerator:
             indicators=snapshot,
             nearby_support=support,
             nearby_resistance=resistance,
+            confidence=confidence,
         )
     
     def _create_sell_signal(
@@ -145,9 +173,13 @@ class SignalGenerator:
         support: PriceLevel | None,
         resistance: PriceLevel | None,
         timeframe: Timeframe,
+        confidence: float,
+        aligned_indicators: list[str],
     ) -> RawSignal:
         """Create a SELL signal with entry/SL/TP."""
-        reasoning = self._build_reasoning(snapshot, "SELL", support, resistance, price)
+        reasoning = self._build_reasoning(
+            snapshot, "SELL", support, resistance, price, confidence, aligned_indicators
+        )
         
         # Calculate levels
         # SL above resistance if available, otherwise use multiplier
@@ -176,6 +208,7 @@ class SignalGenerator:
             indicators=snapshot,
             nearby_support=support,
             nearby_resistance=resistance,
+            confidence=confidence,
         )
     
     def _build_reasoning(
@@ -185,9 +218,16 @@ class SignalGenerator:
         support: PriceLevel | None,
         resistance: PriceLevel | None,
         price: float,
+        confidence: float,
+        aligned_indicators: list[str],
     ) -> list[str]:
         """Build list of reasons for the signal."""
         reasons = []
+        
+        # Confidence context first
+        tier = "HIGH" if confidence >= 0.80 else "MEDIUM" if confidence >= 0.60 else "LOW"
+        reasons.append(f"Confidence: {confidence*100:.0f}% ({tier})")
+        reasons.append(f"Indicators aligned: {', '.join(aligned_indicators)}")
         
         # RSI reason
         if snapshot.rsi:
