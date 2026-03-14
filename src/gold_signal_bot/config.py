@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     """
     
     # Alpha Vantage API
-    alpha_vantage_api_key: str
+    alpha_vantage_api_key: str = ""  # Optional for testing without data fetch
     alpha_vantage_base_url: str = "https://www.alphavantage.co/query"
     
     # Rate limiting (free tier: 5 calls/min, 25 calls/day)
