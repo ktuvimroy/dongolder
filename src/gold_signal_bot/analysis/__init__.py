@@ -1,6 +1,7 @@
 """Technical analysis module for XAU/USD signal generation.
 
-This module provides technical indicator calculations and analysis.
+This module provides technical indicator calculations, support/resistance
+detection, and signal generation.
 """
 
 from .analyzer import TechnicalAnalyzer
@@ -15,14 +16,20 @@ from .models import (
     BollingerResult,
     EMAResult,
     MACDResult,
+    PriceLevel,
+    RawSignal,
     RSIResult,
     SignalDirection,
     TechnicalSnapshot,
 )
+from .signals import SignalGenerator
+from .support_resistance import SupportResistanceDetector
 
 __all__ = [
-    # Analyzer
+    # Analyzers
     "TechnicalAnalyzer",
+    "SignalGenerator",
+    "SupportResistanceDetector",
     # Indicator functions
     "calculate_rsi",
     "calculate_macd",
@@ -36,4 +43,6 @@ __all__ = [
     "EMAResult",
     "BollingerResult",
     "TechnicalSnapshot",
+    "PriceLevel",
+    "RawSignal",
 ]

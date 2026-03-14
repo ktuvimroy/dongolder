@@ -161,3 +161,58 @@ class TechnicalSnapshot:
             if result and result.signal == SignalDirection.BEARISH:
                 count += 1
         return count
+
+
+@dataclass
+class PriceLevel:
+    """A significant price level (support or resistance).
+    
+    Attributes:
+        price: The price level value.
+        level_type: Whether this is support or resistance.
+        strength: How many times price has touched this level (1-5 scale).
+        last_touched: When price last interacted with this level.
+    """
+    price: float
+    level_type: str  # "support" or "resistance"
+    strength: int  # 1-5, based on touch count
+    last_touched: datetime | None = None
+
+
+@dataclass
+class RawSignal:
+    """Raw trading signal before fusion/filtering.
+    
+    Attributes:
+        timestamp: When the signal was generated.
+        direction: BUY or SELL.
+        timeframe: The timeframe this signal applies to.
+        entry_price: Suggested entry price.
+        stop_loss: Suggested stop loss level.
+        take_profit_1: First take profit target.
+        take_profit_2: Second take profit target (optional).
+        reasoning: List of reasons why this signal was generated.
+        indicators: The technical snapshot that produced this signal.
+        nearby_support: Closest support level (if any).
+        nearby_resistance: Closest resistance level (if any).
+    """
+    timestamp: datetime
+    direction: str  # "BUY" or "SELL"
+    timeframe: str
+    entry_price: float
+    stop_loss: float
+    take_profit_1: float
+    take_profit_2: float | None
+    reasoning: list[str]
+    indicators: TechnicalSnapshot
+    nearby_support: PriceLevel | None = None
+    nearby_resistance: PriceLevel | None = None
+    
+    @property
+    def risk_reward_ratio(self) -> float:
+        """Calculate risk/reward ratio for TP1."""
+        risk = abs(self.entry_price - self.stop_loss)
+        reward = abs(self.take_profit_1 - self.entry_price)
+        if risk == 0:
+            return 0.0
+        return reward / risk
