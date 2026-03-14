@@ -24,11 +24,11 @@ Build a fusion-based XAU/USD trading signal bot from the ground up. Start with r
 1. XAU/USD prices update in real-time from free API
 2. Historical data available for 1H, 4H, and Daily timeframes
 3. Data pipeline handles API failures gracefully
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: Project setup and data source integration
-- [ ] 01-02: Multi-timeframe data pipeline
+- [ ] 01-01-PLAN.md — Project setup and Alpha Vantage data fetcher with rate limiting
+- [ ] 01-02-PLAN.md — Multi-timeframe data pipeline with SQLite storage and candle aggregation
 
 ### Phase 2: Technical Analysis Engine
 
