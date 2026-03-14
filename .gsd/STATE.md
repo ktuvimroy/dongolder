@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 3: Telegram Signal Bot** — Complete (2/2 plans complete) — MVP ACHIEVED
+**Phase 4: Fusion Engine** — In Progress (1/2 plans complete)
 
 ## Overall Progress
 
@@ -13,16 +13,18 @@
 | 1. Data Foundation | ✅ Complete | 2/2 complete |
 | 2. Technical Analysis Engine | ✅ Complete | 2/2 complete |
 | 3. Telegram Signal Bot | ✅ Complete | 2/2 complete |
-| 4. Fusion Engine | ⏳ Pending | - |
+| 4. Fusion Engine | 🔄 In Progress | 1/2 complete |
 | 5. Advanced Analysis | ⏳ Pending | - |
 | 6. Deployment & Tracking | ⏳ Pending | - |
 
-## Phase 3 Plans
+Progress: ████████████████░░░░░░░░ 70% (7/10 plans)
+
+## Phase 4 Plans
 
 | Plan | Objective | Wave | Status |
 |------|-----------|------|--------|
-| 03-01 | Telegram bot setup and signal formatting | 1 | ✅ Complete |
-| 03-02 | Alert system integration | 2 | ✅ Complete |
+| 04-01 | Weighted multi-indicator fusion | 1 | ✅ Complete |
+| 04-02 | Confidence scoring integration | 2 | ⏳ Pending |
 
 ## Recent Decisions
 
@@ -35,13 +37,15 @@
 | MIN_SIGNAL_COUNT = 2 | Require indicator consensus | 02-02 |
 | 1-hour duplicate window | Prevent spam from same signal | 03-02 |
 | Async AlertManager | Non-blocking signal checking | 03-02 |
+| Default weights: RSI 25%, MACD 30%, EMA 25%, BBands 20% | MACD weighted highest for trend+momentum | 04-01 |
+| S/R proximity bonus: +10% within 1% | Confluence detection for signal strength | 04-01 |
 
 ## Session Continuity
 
 - **Last session:** March 15, 2026
-- **Stopped at:** Completed Phase 3: Telegram Signal Bot (MVP)
+- **Stopped at:** Completed Plan 04-01 (Weighted Multi-Indicator Fusion)
 - **Resume file:** None
 
 ## Next Action
 
-Transition to Phase 4: Fusion Engine (multi-indicator combining and confidence scoring)
+Execute Plan 04-02: Confidence scoring integration
