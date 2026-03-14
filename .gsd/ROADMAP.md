@@ -55,11 +55,11 @@ Plans:
 2. Signals include BUY/SELL, entry price, SL, TP levels
 3. Signals include reasoning (which indicators triggered)
 4. User receives alerts in real-time
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: Telegram bot setup and signal formatting
-- [ ] 03-02: Alert system integration
+- [ ] 03-01-PLAN.md — Telegram bot setup and signal formatting
+- [ ] 03-02-PLAN.md — Alert system integration
 
 ### Phase 4: Fusion Engine
 
