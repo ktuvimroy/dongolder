@@ -70,11 +70,11 @@ Plans:
 1. Multiple indicators weighted and combined for each signal
 2. Confidence score (0-100%) included with every signal
 3. Signal quality improved vs. single-indicator approach
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: Multi-indicator fusion logic
-- [ ] 04-02: Confidence scoring system
+- [ ] 04-01-PLAN.md — Multi-indicator fusion logic with weighted scoring
+- [ ] 04-02-PLAN.md — Confidence scoring system and signal filtering
 
 ### Phase 5: Advanced Analysis
 
