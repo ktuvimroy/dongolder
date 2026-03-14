@@ -207,6 +207,7 @@ class RawSignal:
     indicators: TechnicalSnapshot
     nearby_support: PriceLevel | None = None
     nearby_resistance: PriceLevel | None = None
+    confidence: float = 0.0  # 0.0 to 1.0 (displayed as 0-100%)
     
     @property
     def risk_reward_ratio(self) -> float:
@@ -216,3 +217,18 @@ class RawSignal:
         if risk == 0:
             return 0.0
         return reward / risk
+    
+    @property
+    def confidence_percent(self) -> int:
+        """Return confidence as 0-100 integer for display."""
+        return int(self.confidence * 100)
+    
+    @property
+    def confidence_tier(self) -> str:
+        """Return confidence tier label."""
+        if self.confidence >= 0.80:
+            return "HIGH"
+        elif self.confidence >= 0.60:
+            return "MEDIUM"
+        else:
+            return "LOW"
