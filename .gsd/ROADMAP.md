@@ -7,7 +7,7 @@ Build a fusion-based XAU/USD trading signal bot from the ground up. Start with r
 ## Phases
 
 - [x] **Phase 1: Data Foundation** — Free XAU/USD price feed and data pipeline ✓
-- [ ] **Phase 2: Technical Analysis Engine** — Core indicators and basic signals
+- [x] **Phase 2: Technical Analysis Engine** — Core indicators and basic signals ✓
 - [ ] **Phase 3: Telegram Signal Bot** — Alert delivery system (MVP complete)
 - [ ] **Phase 4: Fusion Engine** — Multi-source signal combining and confidence scoring
 - [ ] **Phase 5: Advanced Analysis** — News sentiment and ML pattern recognition
@@ -39,11 +39,11 @@ Plans:
 1. RSI, MACD, Moving Averages, Bollinger Bands calculated correctly
 2. Support and resistance levels detected automatically
 3. Raw technical signals generated (not yet fused)
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: Core technical indicators
-- [ ] 02-02: Support/resistance and price action detection
+- [x] 02-01-PLAN.md — Core technical indicators (RSI, MACD, EMA, Bollinger Bands)
+- [x] 02-02-PLAN.md — Support/resistance detection and signal generation
 
 ### Phase 3: Telegram Signal Bot
 
