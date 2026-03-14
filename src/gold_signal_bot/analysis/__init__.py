@@ -1,10 +1,11 @@
 """Technical analysis module for XAU/USD signal generation.
 
 This module provides technical indicator calculations, support/resistance
-detection, and signal generation.
+detection, signal generation, and multi-indicator fusion.
 """
 
 from .analyzer import TechnicalAnalyzer
+from .fusion import FusionEngine, FusionResult, IndicatorWeight
 from .indicators import (
     calculate_bbands,
     calculate_ema,
@@ -30,6 +31,7 @@ __all__ = [
     "TechnicalAnalyzer",
     "SignalGenerator",
     "SupportResistanceDetector",
+    "FusionEngine",
     # Indicator functions
     "calculate_rsi",
     "calculate_macd",
@@ -45,4 +47,6 @@ __all__ = [
     "TechnicalSnapshot",
     "PriceLevel",
     "RawSignal",
+    "IndicatorWeight",
+    "FusionResult",
 ]
