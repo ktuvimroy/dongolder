@@ -85,11 +85,12 @@ Plans:
 1. Gold-related news sentiment factored into signals
 2. ML model identifies historical patterns
 3. Advanced analysis improves signal accuracy
-**Plans**: 2 plans
+**Plans**: 3 plans
 
 Plans:
 - [ ] 05-01-PLAN.md — News sentiment integration (Alpha Vantage NEWS_SENTIMENT + TextBlob fallback)
 - [ ] 05-02-PLAN.md — ML pattern recognition (HistGradientBoosting + feature engineering)
+- [ ] 05-03-PLAN.md — Advanced fusion integration (wire sentiment + ML into FusionEngine)
 
 ### Phase 6: Deployment & Tracking
 
