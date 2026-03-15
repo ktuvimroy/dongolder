@@ -232,3 +232,69 @@ class RawSignal:
             return "MEDIUM"
         else:
             return "LOW"
+
+
+@dataclass
+class SentimentResult:
+    """Aggregated sentiment analysis result from news articles.
+    
+    Attributes:
+        score: Sentiment score from -1.0 (bearish) to 1.0 (bullish).
+        article_count: Number of articles analyzed.
+        signal: Derived trading signal direction.
+    """
+    score: float
+    article_count: int
+    signal: SignalDirection
+    
+    @classmethod
+    def from_score(cls, score: float, article_count: int) -> "SentimentResult":
+        """Create SentimentResult with auto-detected signal.
+        
+        Args:
+            score: Sentiment score from -1.0 to 1.0.
+            article_count: Number of articles that contributed to the score.
+        
+        Returns:
+            SentimentResult with appropriate signal direction.
+        """
+        if score > 0.1:
+            signal = SignalDirection.BULLISH
+        elif score < -0.1:
+            signal = SignalDirection.BEARISH
+        else:
+            signal = SignalDirection.NEUTRAL
+        return cls(score=score, article_count=article_count, signal=signal)
+
+
+@dataclass
+class MLPrediction:
+    """Machine learning pattern prediction result.
+    
+    Attributes:
+        direction: Predicted price direction (BULLISH/BEARISH/NEUTRAL).
+        probability: Model confidence from 0.0 to 1.0.
+        signal: Same as direction for API consistency.
+    """
+    direction: SignalDirection
+    probability: float  # Confidence 0-1
+    signal: SignalDirection  # Same as direction for consistency
+    
+    @classmethod
+    def from_prediction(cls, pred: int, proba: float) -> "MLPrediction":
+        """Create from sklearn prediction output.
+        
+        Args:
+            pred: Model prediction (-1 for bearish, 0 for neutral, 1 for bullish).
+            proba: Maximum class probability from predict_proba.
+            
+        Returns:
+            MLPrediction with appropriate direction and confidence.
+        """
+        if pred == 1:
+            direction = SignalDirection.BULLISH
+        elif pred == -1:
+            direction = SignalDirection.BEARISH
+        else:
+            direction = SignalDirection.NEUTRAL
+        return cls(direction=direction, probability=proba, signal=direction)

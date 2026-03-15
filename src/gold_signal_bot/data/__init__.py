@@ -8,6 +8,7 @@ from .fetcher import (
     RateLimitError,
 )
 from .models import OHLC, SpotPrice, Timeframe
+from .news_fetcher import NewsFetcher, NewsItem, RateLimitExceededError
 from .repository import OHLCRepository, SpotPriceRepository
 from .scheduler import DataScheduler
 
@@ -17,6 +18,10 @@ __all__ = [
     "DataFetcher",
     "InvalidRequestError",
     "RateLimitError",
+    # News Fetcher
+    "NewsFetcher",
+    "NewsItem",
+    "RateLimitExceededError",
     # Models
     "OHLC",
     "SpotPrice",
