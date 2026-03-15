@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 4: Fusion Engine** — ✅ Complete (2/2 plans complete)
+**Phase 5: Advanced Analysis** — ⏳ In Progress (1/3 plans complete)
 
 ## Overall Progress
 
@@ -14,17 +14,18 @@
 | 2. Technical Analysis Engine | ✅ Complete | 2/2 complete |
 | 3. Telegram Signal Bot | ✅ Complete | 2/2 complete |
 | 4. Fusion Engine | ✅ Complete | 2/2 complete |
-| 5. Advanced Analysis | ⏳ Pending | - |
+| 5. Advanced Analysis | ⏳ In Progress | 1/3 complete |
 | 6. Deployment & Tracking | ⏳ Pending | - |
 
-Progress: ████████████████████░░░░ 80% (8/10 plans)
+Progress: █████████████████████░░░ 82% (9/11 plans)
 
-## Phase 4 Plans
+## Phase 5 Plans
 
 | Plan | Objective | Wave | Status |
 |------|-----------|------|--------|
-| 04-01 | Weighted multi-indicator fusion | 1 | ✅ Complete |
-| 04-02 | Confidence scoring integration | 2 | ✅ Complete |
+| 05-01 | News sentiment analysis | 1 | ⏳ Pending |
+| 05-02 | ML pattern recognition | 1 | ✅ Complete |
+| 05-03 | Advanced fusion integration | 2 | ⏳ Pending |
 
 ## Recent Decisions
 
@@ -39,13 +40,17 @@ Progress: ████████████████████░░░�
 | MIN_CONFIDENCE = 0.50 | 50% minimum confidence threshold | 04-02 |
 | CONFLICT_PENALTY = 0.05 | 5% penalty per conflicting indicator | 04-02 |
 | Confidence tiers: 80%/60% | HIGH/MEDIUM/LOW categorization | 04-02 |
+| LOOKBACK_PERIODS = [3, 5, 10, 20] | Lagged feature windows for ML | 05-02 |
+| 0.1% threshold for classification | Up/down/flat distinction | 05-02 |
+| MIN_TRAINING_SAMPLES = 100 | Prevent ML overfitting | 05-02 |
+| TimeSeriesSplit validation | No look-ahead bias in CV | 05-02 |
 
 ## Session Continuity
 
 - **Last session:** March 15, 2026
-- **Stopped at:** Completed Plan 04-02 (Confidence Scoring Integration)
+- **Stopped at:** Completed Plan 05-02 (ML Pattern Recognition)
 - **Resume file:** None
 
 ## Next Action
 
-Execute Phase 05: Advanced Analysis
+Execute Plan 05-03: Advanced fusion integration
