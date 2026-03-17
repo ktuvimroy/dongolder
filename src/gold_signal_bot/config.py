@@ -28,7 +28,20 @@ class Settings(BaseSettings):
     # Retry configuration for transient failures
     max_retries: int = 3
     retry_backoff_seconds: int = 60
-    
+
+    # Storage
+    db_path: str = "gold_signals.db"  # Override: DB_PATH=/data/gold_signals.db
+
+    # Logging
+    log_level: str = "INFO"  # Override: LOG_LEVEL=DEBUG
+
+    # Performance tracking
+    outcome_check_interval_seconds: int = 900   # Check outcomes every 15 min
+    signal_max_open_hours: int = 48             # Expire signals after 48 hours
+
+    # Health check (0 = disabled; set port e.g. 8080 for Railway/Fly.io)
+    health_check_port: int = 0
+
     # Telegram Bot settings
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""

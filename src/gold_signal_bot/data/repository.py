@@ -157,7 +157,7 @@ class OHLCRepository:
         hourly = repo.get_latest(Timeframe.H1, limit=24)
     """
     
-    def __init__(self, db_path: str | Path = "gold_data.db") -> None:
+    def __init__(self, db_path: str | Path = "gold_signals.db") -> None:
         """Initialize repository with database path.
         
         Args:
