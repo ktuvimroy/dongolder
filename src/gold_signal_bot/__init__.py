@@ -45,7 +45,7 @@ async def main() -> None:
     from gold_signal_bot.data.outcome_checker import OutcomeChecker
     from gold_signal_bot.data.repository import OHLCRepository, SpotPriceRepository
     from gold_signal_bot.data.signal_history import SignalHistoryRepository
-    from gold_signal_bot.telegram import AlertManager, TelegramBot
+    from gold_signal_bot.telegram import AlertManager, StatsCommandHandler, TelegramBot
     
     # Load configuration
     settings = get_settings()
@@ -82,16 +82,24 @@ async def main() -> None:
     
     # Setup alert manager with signal history tracking
     alert_manager = AlertManager(bot, signal_gen, signal_history_repo=signal_history_repo)
-    
+
+    # Setup stats command handler
+    stats_handler = StatsCommandHandler(
+        settings=settings,
+        signal_history_repo=signal_history_repo,
+    )
+
     logger.info("Gold Signal Bot starting...")
     logger.info(f"Monitoring timeframes: {[tf.value for tf in alert_manager.timeframes]}")
     logger.info(f"Telegram chat: {settings.telegram_chat_id}")
     logger.info(f"Outcome check interval: {settings.outcome_check_interval_seconds}s")
-    
-    logger.info("Starting outcome checker and alert manager...")
+    logger.info("Command handler: /stats /performance /history enabled")
+
+    logger.info("Starting alert manager, outcome checker, and command handler...")
     await asyncio.gather(
         alert_manager.run_continuous(interval_seconds=settings.fetch_interval_seconds),
         outcome_checker.run_periodic(interval_seconds=settings.outcome_check_interval_seconds),
+        stats_handler.start_polling(),
     )
 
 
