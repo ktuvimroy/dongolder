@@ -11,8 +11,10 @@ from ..data.repository import OHLCRepository
 from .analyzer import TechnicalAnalyzer
 from .fusion import FusionEngine
 from .models import (
+    MLPrediction,
     PriceLevel,
     RawSignal,
+    SentimentResult,
     SignalDirection,
     TechnicalSnapshot,
 )
@@ -58,7 +60,9 @@ class SignalGenerator:
     
     def generate_signal(
         self,
-        timeframe: Timeframe
+        timeframe: Timeframe,
+        sentiment: SentimentResult | None = None,
+        ml_prediction: MLPrediction | None = None,
     ) -> RawSignal | None:
         """Generate a trading signal for the given timeframe.
         
@@ -86,8 +90,18 @@ class SignalGenerator:
         support = self.sr_detector.nearest_support(current_price, levels)
         resistance = self.sr_detector.nearest_resistance(current_price, levels)
         
-        # Use FusionEngine for weighted scoring
-        fusion = self.fusion_engine.fuse(snapshot, current_price, support, resistance)
+        # Use advanced fusion when sentiment or ML input is provided.
+        if sentiment is not None or ml_prediction is not None:
+            fusion = self.fusion_engine.fuse_with_advanced(
+                snapshot,
+                current_price,
+                support,
+                resistance,
+                sentiment=sentiment,
+                ml_prediction=ml_prediction,
+            )
+        else:
+            fusion = self.fusion_engine.fuse(snapshot, current_price, support, resistance)
         
         # NEUTRAL direction = no signal
         if fusion.direction == SignalDirection.NEUTRAL:
@@ -111,12 +125,12 @@ class SignalGenerator:
         if fusion.direction == SignalDirection.BULLISH:
             return self._create_buy_signal(
                 snapshot, current_price, support, resistance, timeframe,
-                confidence, fusion.aligned_indicators
+                confidence, fusion.aligned_indicators, sentiment, ml_prediction
             )
         else:
             return self._create_sell_signal(
                 snapshot, current_price, support, resistance, timeframe,
-                confidence, fusion.aligned_indicators
+                confidence, fusion.aligned_indicators, sentiment, ml_prediction
             )
         
         return None
@@ -130,11 +144,31 @@ class SignalGenerator:
         timeframe: Timeframe,
         confidence: float,
         aligned_indicators: list[str],
+        sentiment: SentimentResult | None = None,
+        ml_prediction: MLPrediction | None = None,
     ) -> RawSignal:
         """Create a BUY signal with entry/SL/TP."""
         reasoning = self._build_reasoning(
-            snapshot, "BUY", support, resistance, price, confidence, aligned_indicators
+            snapshot,
+            "BUY",
+            support,
+            resistance,
+            price,
+            confidence,
+            aligned_indicators,
+            sentiment=sentiment,
+            ml_prediction=ml_prediction,
         )
+
+        sentiment_factor = None
+        if sentiment is not None and sentiment.article_count > 0:
+            s_dir = "Bullish" if sentiment.signal == SignalDirection.BULLISH else "Bearish" if sentiment.signal == SignalDirection.BEARISH else "Neutral"
+            sentiment_factor = f"{s_dir} sentiment ({sentiment.score:+.2f})"
+
+        ml_factor = None
+        if ml_prediction is not None:
+            m_dir = "Bullish" if ml_prediction.direction == SignalDirection.BULLISH else "Bearish" if ml_prediction.direction == SignalDirection.BEARISH else "Neutral"
+            ml_factor = f"{m_dir} ML pattern ({ml_prediction.probability*100:.0f}%)"
         
         # Calculate levels
         # SL below support if available, otherwise use multiplier
@@ -164,6 +198,8 @@ class SignalGenerator:
             nearby_support=support,
             nearby_resistance=resistance,
             confidence=confidence,
+            sentiment_factor=sentiment_factor,
+            ml_factor=ml_factor,
         )
     
     def _create_sell_signal(
@@ -175,11 +211,31 @@ class SignalGenerator:
         timeframe: Timeframe,
         confidence: float,
         aligned_indicators: list[str],
+        sentiment: SentimentResult | None = None,
+        ml_prediction: MLPrediction | None = None,
     ) -> RawSignal:
         """Create a SELL signal with entry/SL/TP."""
         reasoning = self._build_reasoning(
-            snapshot, "SELL", support, resistance, price, confidence, aligned_indicators
+            snapshot,
+            "SELL",
+            support,
+            resistance,
+            price,
+            confidence,
+            aligned_indicators,
+            sentiment=sentiment,
+            ml_prediction=ml_prediction,
         )
+
+        sentiment_factor = None
+        if sentiment is not None and sentiment.article_count > 0:
+            s_dir = "Bullish" if sentiment.signal == SignalDirection.BULLISH else "Bearish" if sentiment.signal == SignalDirection.BEARISH else "Neutral"
+            sentiment_factor = f"{s_dir} sentiment ({sentiment.score:+.2f})"
+
+        ml_factor = None
+        if ml_prediction is not None:
+            m_dir = "Bullish" if ml_prediction.direction == SignalDirection.BULLISH else "Bearish" if ml_prediction.direction == SignalDirection.BEARISH else "Neutral"
+            ml_factor = f"{m_dir} ML pattern ({ml_prediction.probability*100:.0f}%)"
         
         # Calculate levels
         # SL above resistance if available, otherwise use multiplier
@@ -209,6 +265,8 @@ class SignalGenerator:
             nearby_support=support,
             nearby_resistance=resistance,
             confidence=confidence,
+            sentiment_factor=sentiment_factor,
+            ml_factor=ml_factor,
         )
     
     def _build_reasoning(
@@ -220,6 +278,8 @@ class SignalGenerator:
         price: float,
         confidence: float,
         aligned_indicators: list[str],
+        sentiment: SentimentResult | None = None,
+        ml_prediction: MLPrediction | None = None,
     ) -> list[str]:
         """Build list of reasons for the signal."""
         reasons = []
@@ -267,6 +327,16 @@ class SignalGenerator:
             dist_pct = ((resistance.price - price) / price) * 100
             if dist_pct < 1.0:  # Within 1% of resistance
                 reasons.append(f"Near resistance at {resistance.price:.2f} (strength: {resistance.strength})")
+
+        if sentiment is not None and sentiment.article_count > 0:
+            reasons.append(
+                f"News sentiment: {sentiment.signal.value} ({sentiment.score:+.2f}) from {sentiment.article_count} articles"
+            )
+
+        if ml_prediction is not None:
+            reasons.append(
+                f"ML pattern: {ml_prediction.direction.value} ({ml_prediction.probability*100:.0f}% confidence)"
+            )
         
         return reasons
     

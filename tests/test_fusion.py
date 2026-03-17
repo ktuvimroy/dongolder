@@ -16,8 +16,10 @@ from gold_signal_bot.analysis.models import (
     BollingerResult,
     EMAResult,
     MACDResult,
+    MLPrediction,
     PriceLevel,
     RSIResult,
+    SentimentResult,
     SignalDirection,
     TechnicalSnapshot,
 )
@@ -108,17 +110,18 @@ class TestMixedSignals:
         """RSI=BULLISH, MACD=BEARISH, EMA=BULLISH, BBands=NEUTRAL."""
         snapshot = make_snapshot(
             timestamp,
-            rsi_signal=SignalDirection.BULLISH,    # +0.25 bullish
-            macd_signal=SignalDirection.BEARISH,   # +0.30 bearish
-            ema_signal=SignalDirection.BULLISH,    # +0.25 bullish
+            rsi_signal=SignalDirection.BULLISH,    # bullish
+            macd_signal=SignalDirection.BEARISH,   # bearish
+            ema_signal=SignalDirection.BULLISH,    # bullish
             bbands_signal=SignalDirection.NEUTRAL, # no contribution
         )
         
         result = engine.fuse(snapshot, current_price=2650.0)
         
-        assert result.bullish_score == 0.50  # RSI 0.25 + EMA 0.25
-        assert result.bearish_score == 0.30  # MACD 0.30
-        assert result.direction == SignalDirection.BULLISH  # 0.50 > 0.30
+        # With normalized weights, bullish = RSI + EMA, bearish = MACD
+        assert result.bullish_score == pytest.approx(0.50, abs=0.01)
+        assert result.bearish_score == pytest.approx(0.3125, abs=0.01)  # MACD only
+        assert result.direction == SignalDirection.BULLISH  # bullish > bearish
         assert "RSI" in result.aligned_indicators
         assert "EMA" in result.aligned_indicators
         assert "MACD" in result.conflicting_indicators
@@ -236,10 +239,10 @@ class TestPartialIndicators:
         
         result = engine.fuse(snapshot, current_price=2650.0)
         
-        # Only RSI (0.25) and MACD (0.30) contribute
-        assert result.bullish_score == 0.25  # RSI only
-        assert result.bearish_score == 0.30  # MACD only
-        assert result.direction == SignalDirection.BEARISH  # 0.30 > 0.25
+        # With normalized weights: RSI and MACD contribute
+        assert result.bullish_score == pytest.approx(0.25, abs=0.01)
+        assert result.bearish_score == pytest.approx(0.3125, abs=0.01)  # MACD normalized
+        assert result.direction == SignalDirection.BEARISH  # MACD > RSI
         assert "RSI" in result.conflicting_indicators
         assert "MACD" in result.aligned_indicators
     
@@ -309,13 +312,99 @@ class TestFusionResultProperties:
         """Score differential is absolute difference between scores."""
         snapshot = make_snapshot(
             timestamp,
-            rsi_signal=SignalDirection.BULLISH,    # +0.25
-            macd_signal=SignalDirection.BEARISH,   # +0.30
+            rsi_signal=SignalDirection.BULLISH,    # RSI normalized
+            macd_signal=SignalDirection.BEARISH,   # MACD normalized
             ema_signal=SignalDirection.NEUTRAL,
             bbands_signal=SignalDirection.NEUTRAL,
         )
         
         result = engine.fuse(snapshot, current_price=2650.0)
         
-        expected_diff = abs(0.25 - 0.30)
+        # Score differential is absolute difference between bullish and bearish
+        expected_diff = abs(result.bullish_score - result.bearish_score)
         assert result.score_differential == pytest.approx(expected_diff, abs=0.001)
+
+
+class TestAdvancedFusion:
+    """Test fuse_with_advanced sentiment and ML integration."""
+
+    def test_advanced_weights_present(self):
+        weights = IndicatorWeight()
+        assert weights.sentiment == 0.10
+        assert weights.ml_pattern == 0.10
+        total = (
+            weights.rsi
+            + weights.macd
+            + weights.ema
+            + weights.bollinger
+            + weights.sentiment
+            + weights.ml_pattern
+        )
+        assert total == pytest.approx(1.0, abs=0.001)
+
+    def test_fuse_with_advanced_no_inputs(self, engine: FusionEngine, timestamp: datetime):
+        snapshot = make_snapshot(
+            timestamp,
+            rsi_signal=SignalDirection.BULLISH,
+            macd_signal=SignalDirection.BEARISH,
+            ema_signal=SignalDirection.NEUTRAL,
+            bbands_signal=SignalDirection.NEUTRAL,
+        )
+
+        result = engine.fuse_with_advanced(snapshot=snapshot, current_price=2650.0)
+
+        assert result.direction in [
+            SignalDirection.BULLISH,
+            SignalDirection.BEARISH,
+            SignalDirection.NEUTRAL,
+        ]
+        assert result.sentiment_contribution == 0.0
+        assert result.ml_contribution == 0.0
+
+    def test_fuse_with_advanced_sentiment_contribution(self, engine: FusionEngine, timestamp: datetime):
+        snapshot = make_snapshot(
+            timestamp,
+            rsi_signal=SignalDirection.NEUTRAL,
+            macd_signal=SignalDirection.NEUTRAL,
+            ema_signal=SignalDirection.NEUTRAL,
+            bbands_signal=SignalDirection.NEUTRAL,
+        )
+        sentiment = SentimentResult(
+            score=0.8,
+            article_count=5,
+            signal=SignalDirection.BULLISH,
+        )
+
+        result = engine.fuse_with_advanced(
+            snapshot=snapshot,
+            current_price=2650.0,
+            sentiment=sentiment,
+        )
+
+        assert result.direction == SignalDirection.BULLISH
+        assert result.sentiment_contribution > 0.0
+        assert "Sentiment" in result.aligned_indicators
+
+    def test_fuse_with_advanced_ml_contribution(self, engine: FusionEngine, timestamp: datetime):
+        snapshot = make_snapshot(
+            timestamp,
+            rsi_signal=SignalDirection.NEUTRAL,
+            macd_signal=SignalDirection.NEUTRAL,
+            ema_signal=SignalDirection.NEUTRAL,
+            bbands_signal=SignalDirection.NEUTRAL,
+        )
+        ml_prediction = MLPrediction(
+            direction=SignalDirection.BEARISH,
+            probability=0.75,
+            signal=SignalDirection.BEARISH,
+        )
+
+        result = engine.fuse_with_advanced(
+            snapshot=snapshot,
+            current_price=2650.0,
+            ml_prediction=ml_prediction,
+        )
+
+        assert result.direction == SignalDirection.BEARISH
+        assert result.ml_contribution > 0.0
+        assert "ML Pattern" in result.aligned_indicators

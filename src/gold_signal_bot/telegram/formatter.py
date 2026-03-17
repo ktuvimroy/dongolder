@@ -17,6 +17,8 @@ EMOJI_CHART = "📊"
 EMOJI_REASON = "💡"
 EMOJI_RISK = "⚖️"
 EMOJI_CONFIDENCE = "📈"
+EMOJI_SENTIMENT = "📰"
+EMOJI_ML = "🤖"
 
 
 def _confidence_bar(confidence: float) -> str:
@@ -72,6 +74,14 @@ def _format_html(signal: RawSignal, emoji: str, direction: str) -> str:
     conf_bar = _confidence_bar(signal.confidence)
     lines.append(f"{EMOJI_CONFIDENCE} <b>Confidence:</b> {conf_pct}% ({conf_tier})")
     lines.append(f"    {conf_bar}")
+
+    if signal.sentiment_factor or signal.ml_factor:
+        lines.append("")
+        lines.append("<b>Advanced Analysis:</b>")
+        if signal.sentiment_factor:
+            lines.append(f"{EMOJI_SENTIMENT} {signal.sentiment_factor}")
+        if signal.ml_factor:
+            lines.append(f"{EMOJI_ML} {signal.ml_factor}")
     
     # Reasoning section
     if signal.reasoning:
@@ -126,6 +136,14 @@ def _format_plain(signal: RawSignal, emoji: str, direction: str) -> str:
     conf_bar = _confidence_bar(signal.confidence)
     lines.append(f"{EMOJI_CONFIDENCE} Confidence: {conf_pct}% ({conf_tier})")
     lines.append(f"    {conf_bar}")
+
+    if signal.sentiment_factor or signal.ml_factor:
+        lines.append("")
+        lines.append("Advanced Analysis:")
+        if signal.sentiment_factor:
+            lines.append(f"{EMOJI_SENTIMENT} {signal.sentiment_factor}")
+        if signal.ml_factor:
+            lines.append(f"{EMOJI_ML} {signal.ml_factor}")
     
     # Reasoning section
     if signal.reasoning:

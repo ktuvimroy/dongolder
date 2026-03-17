@@ -208,6 +208,8 @@ class RawSignal:
     nearby_support: PriceLevel | None = None
     nearby_resistance: PriceLevel | None = None
     confidence: float = 0.0  # 0.0 to 1.0 (displayed as 0-100%)
+    sentiment_factor: str | None = None
+    ml_factor: str | None = None
     
     @property
     def risk_reward_ratio(self) -> float:
