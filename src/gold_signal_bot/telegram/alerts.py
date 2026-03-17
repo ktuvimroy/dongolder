@@ -5,13 +5,16 @@ pipeline to Telegram notifications for real-time trading alerts.
 """
 
 import asyncio
+import json
 import logging
+import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from ..analysis.models import RawSignal
 from ..analysis.signals import SignalGenerator
 from ..data.models import Timeframe
+from ..data.signal_history import SignalHistoryRepository, SignalRecord
 from .bot import TelegramBot
 
 
@@ -44,6 +47,7 @@ class AlertManager:
         telegram_bot: TelegramBot,
         signal_generator: SignalGenerator,
         timeframes: list[Timeframe] | None = None,
+        signal_history_repo: SignalHistoryRepository | None = None,
     ) -> None:
         """Initialize the alert manager.
         
@@ -51,10 +55,13 @@ class AlertManager:
             telegram_bot: TelegramBot instance for sending messages.
             signal_generator: SignalGenerator for creating signals.
             timeframes: Timeframes to monitor (default: [H1, H4]).
+            signal_history_repo: Optional repository for persisting sent signals.
+                                 Pass None to disable tracking.
         """
         self.bot = telegram_bot
         self.signal_gen = signal_generator
         self.timeframes = timeframes or [Timeframe.H1, Timeframe.H4]
+        self._signal_history_repo = signal_history_repo  # None = tracking disabled
         
         # Track last signal per timeframe to prevent duplicates
         # Key: (timeframe, direction), Value: last signal timestamp
@@ -99,6 +106,30 @@ class AlertManager:
                         f"Sent {signal.direction} signal for {timeframe.value} "
                         f"at ${signal.entry_price}"
                     )
+                    if self._signal_history_repo is not None:
+                        try:
+                            record = SignalRecord(
+                                signal_id=str(uuid.uuid4()),
+                                sent_at=signal.timestamp,
+                                direction=signal.direction,
+                                timeframe=signal.timeframe,
+                                entry_price=signal.entry_price,
+                                stop_loss=signal.stop_loss,
+                                take_profit_1=signal.take_profit_1,
+                                take_profit_2=signal.take_profit_2,
+                                confidence=signal.confidence,
+                                reasoning=json.dumps(signal.reasoning),
+                                sentiment_factor=signal.sentiment_factor,
+                                ml_factor=signal.ml_factor,
+                            )
+                            self._signal_history_repo.save_signal(record)
+                            self.logger.debug(
+                                f"Logged signal {record.signal_id[:8]}... to history"
+                            )
+                        except Exception as e:
+                            self.logger.error(
+                                f"Failed to log signal to history: {e}", exc_info=True
+                            )
                 else:
                     self.logger.warning(
                         f"Failed to send signal for {timeframe.value}"

@@ -42,7 +42,9 @@ async def main() -> None:
     """
     from gold_signal_bot.analysis.signals import SignalGenerator
     from gold_signal_bot.config import get_settings
-    from gold_signal_bot.data.repository import OHLCRepository
+    from gold_signal_bot.data.outcome_checker import OutcomeChecker
+    from gold_signal_bot.data.repository import OHLCRepository, SpotPriceRepository
+    from gold_signal_bot.data.signal_history import SignalHistoryRepository
     from gold_signal_bot.telegram import AlertManager, TelegramBot
     
     # Load configuration
@@ -64,6 +66,13 @@ async def main() -> None:
 
     # Setup data layer
     ohlc_repo = OHLCRepository(db_path=settings.db_path)
+    signal_history_repo = SignalHistoryRepository(db_path=settings.db_path)
+    spot_repo = SpotPriceRepository(db_path=settings.db_path)
+    outcome_checker = OutcomeChecker(
+        signal_repo=signal_history_repo,
+        spot_repo=spot_repo,
+        max_hours_open=settings.signal_max_open_hours,
+    )
     
     # Setup analysis engine
     signal_gen = SignalGenerator(ohlc_repo)
@@ -71,14 +80,19 @@ async def main() -> None:
     # Setup Telegram bot
     bot = TelegramBot(settings)
     
-    # Setup and run alert manager
-    alert_manager = AlertManager(bot, signal_gen)
+    # Setup alert manager with signal history tracking
+    alert_manager = AlertManager(bot, signal_gen, signal_history_repo=signal_history_repo)
     
     logger.info("Gold Signal Bot starting...")
     logger.info(f"Monitoring timeframes: {[tf.value for tf in alert_manager.timeframes]}")
     logger.info(f"Telegram chat: {settings.telegram_chat_id}")
+    logger.info(f"Outcome check interval: {settings.outcome_check_interval_seconds}s")
     
-    await alert_manager.run_continuous()
+    logger.info("Starting outcome checker and alert manager...")
+    await asyncio.gather(
+        alert_manager.run_continuous(interval_seconds=settings.fetch_interval_seconds),
+        outcome_checker.run_periodic(interval_seconds=settings.outcome_check_interval_seconds),
+    )
 
 
 if __name__ == "__main__":
