@@ -24,9 +24,11 @@ from .models import (
     PriceLevel,
     RawSignal,
     RSIResult,
+    SentimentResult,
     SignalDirection,
     TechnicalSnapshot,
 )
+from .sentiment import SentimentAnalyzer
 from .signals import SignalGenerator
 from .support_resistance import SupportResistanceDetector
 
@@ -37,6 +39,7 @@ __all__ = [
     "SupportResistanceDetector",
     "FusionEngine",
     "PatternRecognizer",
+    "SentimentAnalyzer",
     # Feature engineering
     "FeatureEngineer",
     # Indicator functions
@@ -57,4 +60,5 @@ __all__ = [
     "IndicatorWeight",
     "FusionResult",
     "MLPrediction",
+    "SentimentResult",
 ]
