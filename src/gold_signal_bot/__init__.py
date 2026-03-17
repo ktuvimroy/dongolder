@@ -19,6 +19,21 @@ import logging
 __version__ = "0.1.0"
 
 
+async def _run_health_server(port: int) -> None:
+    """Minimal aiohttp health check server for Railway/Fly.io liveness probes."""
+    from aiohttp import web
+
+    async def health(_request: web.Request) -> web.Response:
+        return web.Response(text="OK")
+
+    app = web.Application()
+    app.router.add_get("/health", health)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+
+
 async def main() -> None:
     """Run the gold signal bot.
     
@@ -30,18 +45,25 @@ async def main() -> None:
     from gold_signal_bot.data.repository import OHLCRepository
     from gold_signal_bot.telegram import AlertManager, TelegramBot
     
+    # Load configuration
+    settings = get_settings()
+
     # Configure logging
     logging.basicConfig(
-        level=logging.INFO,
+        level=getattr(logging, settings.log_level.upper(), logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     logger = logging.getLogger(__name__)
-    
-    # Load configuration
-    settings = get_settings()
-    
+
+    # Optional health check server (for Railway/Fly.io liveness probes)
+    if settings.health_check_port > 0:
+        asyncio.create_task(_run_health_server(settings.health_check_port))
+        logger.info(f"Health check server started on port {settings.health_check_port}")
+
+    logger.info(f"Database: {settings.db_path}")
+
     # Setup data layer
-    ohlc_repo = OHLCRepository()
+    ohlc_repo = OHLCRepository(db_path=settings.db_path)
     
     # Setup analysis engine
     signal_gen = SignalGenerator(ohlc_repo)
