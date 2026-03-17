@@ -101,11 +101,12 @@ Plans:
 1. Bot runs 24/7 on free hosting service
 2. Signal history logged with outcomes
 3. Win rate and performance metrics visible
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: Free hosting deployment
-- [ ] 06-02: Performance tracking system
+- [ ] 06-01-PLAN.md — Config improvements (db_path, log_level, health check) + Dockerization + systemd/Railway deployment files
+- [ ] 06-02-PLAN.md — Signal history logging (SignalHistoryRepository) + OutcomeChecker (WIN/LOSS/EXPIRED evaluation) wired into main loop
+- [ ] 06-03-PLAN.md — Telegram /stats /performance /history commands + deployment checkpoint
 
 ## Progress
 
