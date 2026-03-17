@@ -1,0 +1,5 @@
+[deploy]
+startCommand = "python -m gold_signal_bot"
+restartPolicyType = "always"
+healthcheckPath = "/health"
+healthcheckTimeout = 10
