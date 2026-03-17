@@ -1,10 +1,10 @@
 # Project State: Gold Signal Bot
 
-**Last Updated:** March 15, 2026
+**Last Updated:** March 17, 2026
 
 ## Current Phase
 
-**Phase 5: Advanced Analysis** — ⏳ In Progress (1/3 plans complete)
+**Phase 6: Deployment & Tracking** — ⏳ Pending
 
 ## Overall Progress
 
@@ -14,18 +14,18 @@
 | 2. Technical Analysis Engine | ✅ Complete | 2/2 complete |
 | 3. Telegram Signal Bot | ✅ Complete | 2/2 complete |
 | 4. Fusion Engine | ✅ Complete | 2/2 complete |
-| 5. Advanced Analysis | ⏳ In Progress | 1/3 complete |
+| 5. Advanced Analysis | ✅ Complete | 3/3 complete |
 | 6. Deployment & Tracking | ⏳ Pending | - |
 
-Progress: █████████████████████░░░ 82% (9/11 plans)
+Progress: █████████████████████████ 100% (11/11 plans)
 
 ## Phase 5 Plans
 
 | Plan | Objective | Wave | Status |
 |------|-----------|------|--------|
-| 05-01 | News sentiment analysis | 1 | ⏳ Pending |
+| 05-01 | News sentiment analysis | 1 | ✅ Complete |
 | 05-02 | ML pattern recognition | 1 | ✅ Complete |
-| 05-03 | Advanced fusion integration | 2 | ⏳ Pending |
+| 05-03 | Advanced fusion integration | 2 | ✅ Complete |
 
 ## Recent Decisions
 
@@ -44,13 +44,16 @@ Progress: █████████████████████░░�
 | 0.1% threshold for classification | Up/down/flat distinction | 05-02 |
 | MIN_TRAINING_SAMPLES = 100 | Prevent ML overfitting | 05-02 |
 | TimeSeriesSplit validation | No look-ahead bias in CV | 05-02 |
+| Advanced weights: sentiment=10%, ml_pattern=10% | Integrate non-technical factors into fusion scoring | 05-03 |
+| Technical fuse() normalization to 1.0 | Preserve backward-compatible technical-only behavior | 05-03 |
+| ML contribution gate at probability > 0.5 | Avoid low-confidence ML influence | 05-03 |
 
 ## Session Continuity
 
-- **Last session:** March 15, 2026
-- **Stopped at:** Completed Plan 05-02 (ML Pattern Recognition)
+- **Last session:** March 17, 2026
+- **Stopped at:** Completed Plan 05-03 (Advanced fusion integration)
 - **Resume file:** None
 
 ## Next Action
 
-Execute Plan 05-03: Advanced fusion integration
+Transition to Phase 6: Deployment & Tracking
