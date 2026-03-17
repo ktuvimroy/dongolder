@@ -14,8 +14,8 @@ from typing import Optional
 
 from textblob import TextBlob
 
-from src.gold_signal_bot.analysis.models import SentimentResult
-from src.gold_signal_bot.data.news_fetcher import NewsFetcher
+from gold_signal_bot.analysis.models import SentimentResult
+from gold_signal_bot.data.news_fetcher import NewsFetcher
 
 logger = logging.getLogger(__name__)
 

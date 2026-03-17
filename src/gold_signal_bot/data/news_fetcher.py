@@ -14,7 +14,7 @@ from typing import Any
 
 import aiohttp
 
-from src.gold_signal_bot.config import Settings, get_settings
+from gold_signal_bot.config import Settings, get_settings
 
 
 logger = logging.getLogger(__name__)

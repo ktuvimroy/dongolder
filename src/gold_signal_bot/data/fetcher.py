@@ -13,7 +13,7 @@ from typing import Any
 
 import aiohttp
 
-from src.gold_signal_bot.config import get_settings, Settings
+from gold_signal_bot.config import get_settings, Settings
 
 
 class AlphaVantageError(Exception):
