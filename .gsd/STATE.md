@@ -4,7 +4,7 @@
 
 ## Current Phase
 
-**Phase 6: Deployment & Tracking** — 🔄 In Progress (1/3 plans complete)
+**Phase 6: Deployment & Tracking** — 🔄 In Progress (2/3 plans complete)
 
 ## Overall Progress
 
@@ -15,16 +15,16 @@
 | 3. Telegram Signal Bot | ✅ Complete | 2/2 complete |
 | 4. Fusion Engine | ✅ Complete | 2/2 complete |
 | 5. Advanced Analysis | ✅ Complete | 3/3 complete |
-| 6. Deployment & Tracking | 🔄 In Progress | 1/3 complete |
+| 6. Deployment & Tracking | 🔄 In Progress | 2/3 complete |
 
-Progress: ████████████░░░░░░░░░░░░░ 46% (12/14 plans)
+Progress: █████████████░░░░░░░░░░░░ 54% (13/14 plans)
 
 ## Phase 6 Plans
 
 | Plan | Objective | Wave | Status |
 |------|-----------|------|--------|
 | 06-01 | Containerization & Deployment Config | 1 | ✅ Complete |
-| 06-02 | Outcome Tracking | 1 | ⏳ Pending |
+| 06-02 | Outcome Tracking | 1 | ✅ Complete |
 | 06-03 | Cost Calculator | 2 | ⏳ Pending |
 
 ## Recent Decisions
@@ -47,16 +47,18 @@ Progress: ████████████░░░░░░░░░░░�
 | Advanced weights: sentiment=10%, ml_pattern=10% | Integrate non-technical factors into fusion scoring | 05-03 |
 | Technical fuse() normalization to 1.0 | Preserve backward-compatible technical-only behavior | 05-03 |
 | ML contribution gate at probability > 0.5 | Avoid low-confidence ML influence | 05-03 |
-| Shell-form CMD in Dockerfile | Verification substring matching; functionally equivalent to exec form | 06-01 |
+| INSERT OR IGNORE on signal_id | Idempotent saves if bot retries | 06-02 |
+| reasoning pre-serialized as JSON string | No double-encoding between AlertManager and SignalRecord | 06-02 |
+| asyncio.gather() for AlertManager + OutcomeChecker | Both run forever; one cancellation stops both | 06-02 |
 | OHLCRepository default changed to gold_signals.db | Unified default matches db_path setting for single-file production DB | 06-01 |
 | Health server as asyncio.create_task | Non-blocking alongside main bot loop | 06-01 |
 
 ## Session Continuity
 
 - **Last session:** March 17, 2026
-- **Stopped at:** Completed Plan 06-01 (Containerization & Deployment Config)
+- **Stopped at:** Completed Plan 06-02 (Signal History & Outcome Tracking)
 - **Resume file:** None
 
 ## Next Action
 
-Execute Plan 06-02 (Outcome Tracker)
+Execute Plan 06-03 (Telegram Stats Commands)
